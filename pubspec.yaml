@@ -33,11 +33,17 @@ dependencies:
   flutter_foreground_task: ^6.5.0
   frame_msg: ^2.0.0
   frame_ble: ^3.0.0
+  permission_handler: ^12.0.0+1
+  speech_to_text: ^7.0.0
+  simple_frame_app: ^7.1.0 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+
+dependency_overrides:
+  permission_handler_android: ^12.0.0+1
 
 flutter_launcher_icons:
   image_path: "assets/app_icon.png"
