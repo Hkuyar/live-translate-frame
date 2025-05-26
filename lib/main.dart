@@ -8,26 +8,35 @@ import 'package:noa/pages/splash.dart';
 import 'package:noa/util/app_log.dart';
 import 'package:noa/util/foreground_service.dart';
 import 'package:noa/util/location.dart';
-
+import 'dart:developer';
 final globalPageStorageBucket = PageStorageBucket();
 
-void main() async {
-  // Load environment variables
-  await dotenv.load();
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-  // Start logging
+  // Load environment variables
+  await dotenv.load(fileName: '.env');
+
+  // Start logging container
   final container = ProviderContainer();
   container.read(appLog);
 
-  // Set up Android foreground service
+  // Initialize foreground service
   initializeForegroundService();
 
-  // Request bluetooth permission
-  BrilliantBluetooth.requestPermission();
+  // Request Bluetooth permission
+  try {
+    await BrilliantBluetooth.requestPermission();
+  } catch (e) {
+    // Handle denial
+    log('Bluetooth permission denied: $e', level: 1000);
+    return;
+  }
 
-  // Start location stream
+  // Start location updates (permission handled internally)
   Location.startLocationStream();
 
+  // Configure audio session for speech
   _setupAudioSession();
 
   runApp(UncontrolledProviderScope(
@@ -65,9 +74,10 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     startForegroundService();
     return const WithForegroundTask(
-        child: MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: SplashPage(),
-    ));
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: SplashPage(),
+      ),
+    );
   }
 }
