@@ -41,6 +41,7 @@ app.*.map.json
 
 # Environment variables file
 .env
+.env.*
 
 # VSCode user settings
 .vscode/settings.json
