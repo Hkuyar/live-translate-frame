@@ -29,7 +29,6 @@ class NoaPage extends ConsumerStatefulWidget {
 
 class _NoaPageState extends ConsumerState<NoaPage> {
   final ScrollController _scrollController = ScrollController();
-
   late final SttService _sttService;
   late final GptService _gptService;
   BrilliantDevice? _frameDevice;
@@ -42,25 +41,23 @@ class _NoaPageState extends ConsumerState<NoaPage> {
     _initializeTranslation();
   }
 
-  /// Initialize BLE connection and STT engine
   Future<void> _initializeTranslation() async {
     try {
       await BrilliantBluetooth.requestPermission();
       final scanned = await BrilliantBluetooth.scan().first;
       _frameDevice = await BrilliantBluetooth.connect(scanned);
     } catch (e) {
-      log('BLE init error: $e');
+      log('BLE init error: \$e');
       return;
     }
 
     try {
       await _sttService.init();
     } catch (e) {
-      log('STT init error: $e');
+      log('STT init error: \$e');
     }
   }
 
-  /// Capture speech, translate, and display on Frame
   Future<void> _onTranslatePressed() async {
     if (_frameDevice?.state != BrilliantConnectionState.connected) return;
 
@@ -70,10 +67,10 @@ class _NoaPageState extends ConsumerState<NoaPage> {
     final translation = await _gptService.translateToEnglish(text);
     if (translation == null) return;
 
-    // Escape quotes
+    // Escape any internal quotes
     final escaped = translation.replaceAll('"', '\\"');
     await _frameDevice!.sendString(
-      'frame.display.text("$escaped", 1, 1); frame.display.show();',
+      'frame.display.text("\$escaped", 1, 1); frame.display.show();',
       awaitResponse: false,
     );
   }
@@ -140,8 +137,7 @@ class _NoaPageState extends ConsumerState<NoaPage> {
                         .inSeconds >
                     1700)
                   Container(
-                    margin:
-                        const EdgeInsets.only(top: 40, left: 42, right: 42),
+                    margin: const EdgeInsets.only(top: 40, left: 42, right: 42),
                     child: Row(
                       children: [
                         Text(
@@ -154,32 +150,34 @@ class _NoaPageState extends ConsumerState<NoaPage> {
                       ],
                     ),
                   ),
+                const SizedBox(height: 10),
                 Container(
-                  margin: const EdgeInsets.only(top: 10, left: 65, right: 42),
-                  child: Text(ref.watch(app.model).noaMessages[index].message,
-                      style: style),
+                  margin: const EdgeInsets.only(left: 65, right: 42),
+                  child: Text(
+                    ref.watch(app.model).noaMessages[index].message,
+                    style: style,
+                  ),
                 ),
                 if (ref.watch(app.model).noaMessages[index].image != null)
                   Container(
                     decoration: BoxDecoration(
-                        border: Border.all(color: colorLight, width: 0.5),
-                        borderRadius: BorderRadius.circular(10.5)),
-                    margin: const EdgeInsets.only(
-                        top: 10, bottom: 10, left: 65, right: 65),
+                      border: Border.all(color: colorLight, width: 0.5),
+                      borderRadius: BorderRadius.circular(10.5),
+                    ),
+                    margin: const EdgeInsets.only(top: 10, bottom: 10, left: 65, right: 65),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
-                      child: SizedBox.fromSize(
-                        child: GestureDetector(
-                          onLongPress: () async {
-                            await SaverGallery.saveImage(
-                                ref.watch(app.model).noaMessages[index].image!,
-                                fileName: const Uuid().v1(),
-                                skipIfExists: false
-                            );
-                            if (context.mounted) showToast("Saved to photos", context);
-                          },
-                          child: Image.memory(
-                              ref.watch(app.model).noaMessages[index].image!),
+                      child: GestureDetector(
+                        onLongPress: () async {
+                          await SaverGallery.saveImage(
+                            ref.watch(app.model).noaMessages[index].image!,
+                            name: const Uuid().v1(),
+                            androidExistNotSave: false,
+                          );
+                          if (context.mounted) showToast('Saved to photos', context);
+                        },
+                        child: Image.memory(
+                          ref.watch(app.model).noaMessages[index].image!,
                         ),
                       ),
                     ),
