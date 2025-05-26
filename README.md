@@ -22,7 +22,7 @@ Spoken non-English is auto-translated and shown as subtitles
 
 ## Setup  
 ```bash
-git clone https://github.com/<you>/live-translate-frame.git
+git clone https://github.com/hkuyar/live-translate-frame.git
 cd live-translate-frame
 flutter pub get
 echo "OPENAI_API_KEY=sk-…" > .env
